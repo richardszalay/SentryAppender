@@ -161,8 +161,10 @@ namespace SharpRaven.Log4Net.Extra
 
                 foreach (var key in collection.Keys)
                 {
+                    string stringKey = key as string;
+
                     // NOTE: Ignore these keys as they just add duplicate information. [asbjornu]
-                    if (key == "ALL_HTTP" || key == "ALL_RAW")
+                    if (stringKey == "ALL_HTTP" || stringKey == "ALL_RAW")
                         continue;
 
                     var value = valueFromCollectionGetter(collection, key);
