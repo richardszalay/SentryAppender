@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using log4net.Layout;
-
 using SharpRaven.Data;
 using SharpRaven.Log4Net.Extra;
 
@@ -12,12 +10,6 @@ using log4net.Core;
 
 namespace SharpRaven.Log4Net
 {
-    public class SentryTag
-    {
-        public string Name { get; set; }
-        public IRawLayout Layout { get; set; }
-    }
-
     public class SentryAppender : AppenderSkeleton
     {
         private static RavenClient ravenClient;
@@ -40,24 +32,7 @@ namespace SharpRaven.Log4Net
                 };
             }
 
-            var httpExtra = HttpExtra.GetHttpExtra();
-            object extra;
-
-            if (httpExtra != null)
-            {
-                extra = new
-                {
-                    Environment = new EnvironmentExtra(),
-                    Http = httpExtra
-                };
-            }
-            else
-            {
-                extra = new
-                {
-                    Environment = new EnvironmentExtra()
-                };
-            }
+            var extra = GetExtra();
 
             var tags = tagLayouts.ToDictionary(t => t.Name, t => (t.Layout.Format(loggingEvent) ?? "").ToString());
 
@@ -77,6 +52,31 @@ namespace SharpRaven.Log4Net
                     ravenClient.CaptureMessage(message, level, tags, extra);
                 }
             }
+        }
+
+
+        internal static object GetExtra()
+        {
+            var httpExtra = HttpExtra.GetHttpExtra();
+            object extra;
+
+            if (httpExtra != null)
+            {
+                extra = new
+                {
+                    Environment = new EnvironmentExtra(),
+                    Http = httpExtra
+                };
+            }
+            else
+            {
+                extra = new
+                {
+                    Environment = new EnvironmentExtra()
+                };
+            }
+
+            return extra;
         }
 
 
